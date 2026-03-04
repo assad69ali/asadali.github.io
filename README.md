@@ -16,17 +16,17 @@
 
 ## 🧠 About Me
 
-```python
-asad = {
-    "name"       : "Asad Ali",
-    "location"   : "Lahore, Pakistan 🇵🇰",
-    "education"  : "BS Data Science @ University of Central Punjab (2022–2026)",
-    "semester"   : "7th Semester",
-    "experience" : "Strategy & Analytics Intern @ Bank Alfalah",
-    "interests"  : ["Big Data", "NLP", "RAG", "Data Pipelines", "BI & Visualization"],
-    "status"     : "Open to Opportunities 🚀"
-}
-```
+🎓 I'm a **7th Semester Data Science student** at the University of Central Punjab, Lahore — passionate about turning raw data into real insights.
+
+💼 I've gained hands-on industry experience as a **Strategy & Analytics Intern at Bank Alfalah**, where I worked on customer segmentation, behavior analysis, and data-driven decision-making.
+
+🔥 My core strengths lie in **Big Data pipelines, NLP & RAG systems, real-time data streaming, and BI dashboards** — I love building end-to-end data solutions from scratch.
+
+🌱 Currently deepening my expertise in **distributed computing with PySpark**, **machine learning**, and **LLM-powered applications**.
+
+🚀 Actively looking for **Data Science, Analytics, or ML opportunities** where I can contribute and grow.
+
+> *"Data is the new oil — but only if you know how to refine it."*
 
 ---
 
@@ -134,7 +134,7 @@ asad = {
 
 💌 **Email:** [assad69ali@gmail.com](mailto:assad69ali@gmail.com)
 🔗 **LinkedIn:** [linkedin.com/in/assad69ali](https://www.linkedin.com/in/assad69ali)
-🌐 **Portfolio:**  [https://assad69ali.github.io/asadali.github.io/)
+🌐 **Portfolio:** [asadali.github.io](https://asadali.github.io)
 📍 **Location:** Lahore, Pakistan
 
 ---
