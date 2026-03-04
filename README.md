@@ -134,7 +134,7 @@ asad = {
 
 💌 **Email:** [assad69ali@gmail.com](mailto:assad69ali@gmail.com)
 🔗 **LinkedIn:** [linkedin.com/in/assad69ali](https://www.linkedin.com/in/assad69ali)
-🌐 **Portfolio:** [asadali.github.io](https://asadali.github.io)
+🌐 **Portfolio:**  [https://assad69ali.github.io/asadali.github.io/)
 📍 **Location:** Lahore, Pakistan
 
 ---
