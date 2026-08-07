@@ -15,9 +15,9 @@
   --cyan: #0ef;
   --gold: #f0c060;
   --green: #00e5a0;
-  --text: #ddeeff;
-  --muted: #4a7090;
-  --muted2: #7a9ab0;
+  --text: #f2f8ff;
+  --muted: #a9c4dc;
+  --muted2: #cfe3f2;
   --font-h: 'Clash Display', sans-serif;
   --font-b: 'Cabinet Grotesk', sans-serif;
   --font-m: 'JetBrains Mono', monospace;
@@ -29,6 +29,9 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-b); ov
 /* CURSOR */
 #cursor { position:fixed; width:12px; height:12px; background:var(--cyan); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:width .2s,height .2s; mix-blend-mode:screen; }
 #cursor-ring { position:fixed; width:36px; height:36px; border:1px solid rgba(0,238,255,.35); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:width .3s,height .3s; }
+
+/* 3D CANVAS (Three.js hero) */
+#heroCanvas3d { position:absolute; inset:0; z-index:0; opacity:.9; }
 
 /* CANVAS */
 #bgCanvas { position:fixed; inset:0; z-index:0; opacity:.55; }
@@ -50,13 +53,14 @@ main { position:relative; z-index:2; }
 .container { max-width:1100px; margin:0 auto; padding:0 48px; }
 
 /* HERO */
-#hero { min-height:100vh; display:flex; align-items:center; padding-top:100px; position:relative; }
-.hero-inner { display:grid; grid-template-columns:1fr 340px; gap:60px; align-items:center; width:100%; }
-.hero-eyebrow { font-family:var(--font-m); font-size:11px; color:var(--cyan); letter-spacing:4px; text-transform:uppercase; margin-bottom:20px; opacity:0; animation:slideUp .7s .3s cubic-bezier(.16,1,.3,1) forwards; }
-.hero-name { font-family:var(--font-h); font-size:clamp(52px,8vw,96px); font-weight:700; line-height:.95; letter-spacing:-3px; color:var(--text); opacity:0; animation:slideUp .7s .45s cubic-bezier(.16,1,.3,1) forwards; }
+#hero { min-height:100vh; display:flex; align-items:center; padding-top:100px; position:relative; overflow:hidden; }
+.hero-inner { display:grid; grid-template-columns:1fr 340px; gap:60px; align-items:center; width:100%; position:relative; z-index:2; }
+.hero-eyebrow { font-family:var(--font-m); font-size:11px; color:var(--cyan); letter-spacing:4px; text-transform:uppercase; margin-bottom:20px; opacity:0; animation:slideUp .7s .3s cubic-bezier(.16,1,.3,1) forwards; text-shadow:0 2px 16px rgba(0,0,0,.9); }
+.hero-name { font-family:var(--font-h); font-size:clamp(52px,8vw,96px); font-weight:700; line-height:.95; letter-spacing:-3px; color:var(--text); opacity:0; animation:slideUp .7s .45s cubic-bezier(.16,1,.3,1) forwards; text-shadow:0 4px 30px rgba(0,0,0,.85); }
 .hero-name .hl { display:block; background:linear-gradient(90deg,var(--cyan),var(--green)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.hero-role { font-size:18px; font-weight:300; color:var(--muted2); margin-top:20px; opacity:0; animation:slideUp .7s .6s cubic-bezier(.16,1,.3,1) forwards; }
-.hero-desc { font-size:15px; color:var(--muted); line-height:1.8; max-width:520px; margin-top:20px; opacity:0; animation:slideUp .7s .75s cubic-bezier(.16,1,.3,1) forwards; }
+.hero-role { font-size:18px; font-weight:400; color:var(--muted2); margin-top:20px; opacity:0; animation:slideUp .7s .6s cubic-bezier(.16,1,.3,1) forwards; text-shadow:0 2px 18px rgba(0,0,0,.95); }
+.hero-desc { font-size:15px; color:var(--muted); line-height:1.85; max-width:540px; margin-top:20px; opacity:0; animation:slideUp .7s .75s cubic-bezier(.16,1,.3,1) forwards; text-shadow:0 2px 18px rgba(0,0,0,.95); }
+.hero-text-panel { position:relative; padding:28px 32px; margin-left:-32px; border-radius:20px; background:linear-gradient(135deg,rgba(3,8,12,.55),rgba(3,8,12,.15) 60%,transparent); backdrop-filter:blur(2px); }
 .hero-actions { display:flex; gap:14px; margin-top:36px; flex-wrap:wrap; opacity:0; animation:slideUp .7s .9s cubic-bezier(.16,1,.3,1) forwards; }
 
 /* BUTTONS */
@@ -67,7 +71,7 @@ main { position:relative; z-index:2; }
 .btn-outline:hover { border-color:var(--cyan); color:var(--cyan); }
 
 /* HERO CARD */
-.hero-card { background:var(--card); border:1px solid var(--border2); border-radius:20px; padding:32px; opacity:0; animation:slideUp .7s .6s cubic-bezier(.16,1,.3,1) forwards; position:relative; overflow:hidden; }
+.hero-card { background:rgba(11,21,32,.72); backdrop-filter:blur(6px); border:1px solid var(--border2); border-radius:20px; padding:32px; opacity:0; animation:slideUp .7s .6s cubic-bezier(.16,1,.3,1) forwards; position:relative; overflow:hidden; transform-style:preserve-3d; will-change:transform; transition:transform .15s ease-out; }
 .hero-card::before { content:''; position:absolute; top:-1px; left:20px; right:20px; height:1px; background:linear-gradient(90deg,transparent,var(--cyan),transparent); }
 .hero-avatar { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,var(--cyan),var(--green)); display:flex; align-items:center; justify-content:center; font-family:var(--font-h); font-size:28px; font-weight:700; color:var(--bg); margin-bottom:20px; }
 .hero-card-name { font-family:var(--font-h); font-size:22px; font-weight:600; color:var(--text); }
@@ -80,7 +84,7 @@ main { position:relative; z-index:2; }
 .status-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green); animation:glow 2s ease-in-out infinite; }
 
 /* SCROLL HINT */
-.scroll-hint { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0; animation:fadeIn 1s 1.5s forwards; }
+.scroll-hint { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0; animation:fadeIn 1s 1.5s forwards; z-index:2; }
 .scroll-hint span { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:3px; text-transform:uppercase; }
 .scroll-line { width:1px; height:50px; background:linear-gradient(to bottom,var(--cyan),transparent); animation:scrollPulse 2s ease-in-out infinite; }
 
@@ -120,10 +124,13 @@ section { padding:100px 0; position:relative; }
 .exp-points li::before { content:'→'; position:absolute; left:0; color:var(--cyan); font-size:12px; }
 
 /* PROJECTS */
+#projects { position:relative; overflow:hidden; }
+#projectsCanvas3d { position:absolute; inset:0; z-index:0; opacity:.55; pointer-events:none; }
+#projects .container { position:relative; z-index:2; }
 .projects-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
-.proj-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:26px; transition:all .3s cubic-bezier(.16,1,.3,1); position:relative; overflow:hidden; cursor:none; display:flex; flex-direction:column; }
+.proj-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:26px; transition:transform .35s cubic-bezier(.16,1,.3,1), border-color .3s, box-shadow .35s; position:relative; overflow:hidden; cursor:none; display:flex; flex-direction:column; transform-style:preserve-3d; will-change:transform; }
 .proj-card::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(0,238,255,.06),transparent 65%); opacity:0; transition:opacity .3s; }
-.proj-card:hover { transform:translateY(-6px); border-color:rgba(0,238,255,.25); box-shadow:0 20px 60px rgba(0,0,0,.5); }
+.proj-card:hover { border-color:rgba(0,238,255,.25); box-shadow:0 20px 60px rgba(0,0,0,.5); }
 .proj-card:hover::before { opacity:1; }
 .proj-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; }
 .proj-icon { width:44px; height:44px; border-radius:10px; background:rgba(0,238,255,.08); border:1px solid rgba(0,238,255,.15); display:flex; align-items:center; justify-content:center; font-size:20px; }
@@ -132,6 +139,7 @@ section { padding:100px 0; position:relative; }
 .proj-desc { font-size:13px; color:var(--muted); line-height:1.7; flex:1; margin-bottom:18px; }
 .proj-stack { display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; }
 .stack-tag { font-family:var(--font-m); font-size:9px; padding:3px 8px; border-radius:4px; background:rgba(255,255,255,.04); border:1px solid var(--border); color:var(--muted); letter-spacing:.5px; }
+.proj-metric { font-family:var(--font-m); font-size:10px; color:var(--green); letter-spacing:.5px; margin-bottom:12px; }
 
 /* RESEARCH */
 .research-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:40px; position:relative; overflow:hidden; transition:border-color .3s; }
@@ -187,8 +195,14 @@ footer { position:relative; z-index:2; border-top:1px solid var(--border); paddi
   .projects-grid{grid-template-columns:1fr 1fr;}
   footer{padding:24px;}
   .nav-links{display:none;}
+  #heroCanvas3d{opacity:.5;}
+  #projectsCanvas3d{opacity:.3;}
 }
 @media(max-width:600px){.projects-grid{grid-template-columns:1fr;}}
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .hero-eyebrow, .hero-name, .hero-role, .hero-desc, .hero-actions, .hero-card, .scroll-hint { animation:none !important; opacity:1 !important; transform:none !important; }
+  .proj-card, .hero-card { transition:none !important; }
+}
 </style>
 </head>
 <body>
@@ -212,15 +226,16 @@ footer { position:relative; z-index:2; border-top:1px solid var(--border); paddi
 
 <!-- HERO -->
 <section id="hero">
+  <canvas id="heroCanvas3d"></canvas>
   <div class="container">
     <div class="hero-inner">
-      <div>
-        <p class="hero-eyebrow">// Data Science Portfolio</p>
+      <div class="hero-text-panel">
+        <p class="hero-eyebrow">// AI, ML & Data Science Portfolio</p>
         <h1 class="hero-name">Asad<span class="hl">Ali</span></h1>
-        <p class="hero-role">Data Science Student · University of Central Punjab</p>
-        <p class="hero-desc">Proficient in Python, SQL, PySpark & BI tools. Experienced in EDA, statistical modeling, NLP, RAG, and real-time data pipelines. Former Strategy & Analytics Intern at Bank Alfalah.</p>
+        <p class="hero-role">Data Science Graduate · University of Central Punjab</p>
+        <p class="hero-desc">I sit at the intersection of data analysis and applied AI — one day cleaning 300K+ banking records and building the Power BI dashboard that drives a decision, the next building a transformer-based NLP model or a RAG assistant that reasons over live knowledge. Comfortable end-to-end: SQL and PySpark to wrangle the data, statistics and dashboards to explain it, and machine learning — Scikit-learn, PyTorch, Hugging Face — to make it predictive. That range shaped my work as Strategy & Analytics Intern at Bank Alfalah, and every project below.</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="mailto:assad69ali@gmail.com">✉ Get In Touch</a>
+          <a class="btn btn-primary" href="mailto:asad.data.ali@gmail.com">✉ Get In Touch</a>
           <a class="btn btn-outline" href="https://www.linkedin.com/in/assad69ali" target="_blank">in LinkedIn</a>
           <a class="btn btn-outline" href="https://github.com/assad69ali" target="_blank">⌥ GitHub</a>
         </div>
@@ -230,9 +245,9 @@ footer { position:relative; z-index:2; border-top:1px solid var(--border); paddi
         <div class="hero-card-name">Asad Ali</div>
         <div class="hero-card-sub">// DATA SCIENCE · UCP LAHORE</div>
         <div class="stat-grid">
-          <div class="stat-box"><div class="stat-num" data-count="8">0</div><div class="stat-lbl">Projects</div></div>
-          <div class="stat-box"><div class="stat-num" data-count="7">0</div><div class="stat-lbl">Semester</div></div>
-          <div class="stat-box"><div class="stat-num" data-count="10">0</div><div class="stat-lbl">Tools</div></div>
+          <div class="stat-box"><div class="stat-num" data-count="10">0</div><div class="stat-lbl">Projects</div></div>
+          <div class="stat-box"><div class="stat-num" data-count="4">0</div><div class="stat-lbl">Years</div></div>
+          <div class="stat-box"><div class="stat-num" data-count="20">0</div><div class="stat-lbl">Tools</div></div>
           <div class="stat-box"><div class="stat-num" data-count="1">0</div><div class="stat-lbl">Internship</div></div>
         </div>
         <div class="status-badge">Open to Opportunities</div>
@@ -255,28 +270,28 @@ footer { position:relative; z-index:2; border-top:1px solid var(--border); paddi
         <div class="skill-group-icon">⌨️</div>
         <div class="skill-group-title">Languages & Databases</div>
         <div class="skill-pills">
-          <span class="pill">Python</span><span class="pill">C++</span><span class="pill">SQL</span><span class="pill">MySQL</span>
+          <span class="pill">Python</span><span class="pill">C++</span><span class="pill">SQL</span><span class="pill">MySQL</span><span class="pill">PostgreSQL</span>
         </div>
       </div>
       <div class="skill-group reveal">
         <div class="skill-group-icon">⚡</div>
-        <div class="skill-group-title">Big Data & Streaming</div>
+        <div class="skill-group-title">Big Data & Cloud</div>
         <div class="skill-pills">
-          <span class="pill gold">PySpark</span><span class="pill gold">Apache Spark</span><span class="pill gold">Apache Kafka</span><span class="pill gold">Apache Drill</span>
+          <span class="pill gold">PySpark</span><span class="pill gold">Apache Spark</span><span class="pill gold">Databricks</span><span class="pill gold">Snowflake</span><span class="pill gold">Azure Data Factory</span>
         </div>
       </div>
       <div class="skill-group reveal">
         <div class="skill-group-icon">📦</div>
-        <div class="skill-group-title">Libraries & Frameworks</div>
+        <div class="skill-group-title">ML, NLP & Frameworks</div>
         <div class="skill-pills">
-          <span class="pill">Pandas</span><span class="pill">NumPy</span><span class="pill">Scikit-learn</span><span class="pill">Matplotlib</span><span class="pill">Seaborn</span><span class="pill">Streamlit</span><span class="pill">BeautifulSoup</span><span class="pill">Scrapy</span>
+          <span class="pill">Scikit-learn</span><span class="pill">PyTorch</span><span class="pill">Transformers</span><span class="pill">Hugging Face</span><span class="pill">RAG</span><span class="pill">SBERT</span><span class="pill">Pandas</span><span class="pill">NumPy</span>
         </div>
       </div>
       <div class="skill-group reveal">
         <div class="skill-group-icon">📊</div>
-        <div class="skill-group-title">BI, Visualization & ETL</div>
+        <div class="skill-group-title">BI, Visualization & Automation</div>
         <div class="skill-pills">
-          <span class="pill green">Power BI</span><span class="pill green">Tableau</span><span class="pill green">Excel</span><span class="pill green">KNIME</span><span class="pill green">Pentaho</span>
+          <span class="pill green">Power BI</span><span class="pill green">Tableau</span><span class="pill green">Excel</span><span class="pill green">KNIME</span><span class="pill green">Pentaho</span><span class="pill green">n8n</span>
         </div>
       </div>
     </div>
@@ -298,13 +313,12 @@ footer { position:relative; z-index:2; border-top:1px solid var(--border); paddi
             <div class="exp-role">Strategy & Analytics Intern</div>
             <div class="exp-company">// Bank Alfalah · Lahore, Pakistan</div>
           </div>
-          <div class="exp-badge">1.5 Months</div>
+          <div class="exp-badge">Aug – Sep 2025</div>
         </div>
         <ul class="exp-points">
-          <li>Collaborated with Strategy & Analytics team on customer data analysis to support key business decisions.</li>
-          <li>Performed customer segmentation and behavior analysis using Excel and internal banking data systems.</li>
-          <li>Led analysis for Flood 2025 impact study — examining effects on customers and bank operations.</li>
-          <li>Supported Recovery Department by analyzing overdue accounts and developing data-driven recovery insights.</li>
+          <li>Performed customer segmentation and behavior analysis on 300K+ customers using Excel and internal banking data, giving the Strategy & Analytics team a consolidated view to support decision-making.</li>
+          <li>Performed NPL aging analysis on overdue accounts (30/60/90 DPD buckets to default) for the Recovery Department, tracking roll rates and flagging the highest-risk exposures.</li>
+          <li>Contributed to Flood 2025 impact analysis, quantifying effects on customers and operations to support the bank's response.</li>
         </ul>
       </div>
     </div>
@@ -313,6 +327,7 @@ footer { position:relative; z-index:2; border-top:1px solid var(--border); paddi
 
 <!-- PROJECTS -->
 <section id="projects">
+  <canvas id="projectsCanvas3d"></canvas>
   <div class="container">
     <div class="section-header reveal">
       <span class="section-num">03</span>
@@ -321,49 +336,63 @@ footer { position:relative; z-index:2; border-top:1px solid var(--border); paddi
     </div>
     <div class="projects-grid">
       <div class="proj-card reveal">
-        <div class="proj-top"><div class="proj-icon">🤖</div><span class="proj-num">01</span></div>
-        <div class="proj-name">AI Assistant using NLP & RAG</div>
-        <div class="proj-desc">Conversational AI system using NLP and Retrieval-Augmented Generation to provide context-aware answers from external knowledge sources.</div>
-        <div class="proj-stack"><span class="stack-tag">Python</span><span class="stack-tag">NLP</span><span class="stack-tag">RAG</span><span class="stack-tag">LLM</span></div>
+        <div class="proj-top"><div class="proj-icon">🏬</div><span class="proj-num">01</span></div>
+        <div class="proj-name">NexaMart Enterprise Data Warehouse</div>
+        <div class="proj-metric">Rs 141.51 Cr reconciled · 99.47% inventory accuracy</div>
+        <div class="proj-desc">End-to-end retail data warehouse resolving conflicting campaign reports from dirty operational data: SQLite → Databricks/PySpark → Snowflake on a Bronze–Silver–Gold–Marts Medallion Architecture with a Kimball star schema (13 dims, 14 facts, 843K+ rows) and 28 KPI views.</div>
+        <div class="proj-stack"><span class="stack-tag">PySpark</span><span class="stack-tag">Databricks</span><span class="stack-tag">Snowflake</span><span class="stack-tag">Kimball</span><span class="stack-tag">Power BI</span></div>
       </div>
       <div class="proj-card reveal">
-        <div class="proj-top"><div class="proj-icon">🌉</div><span class="proj-num">02</span></div>
+        <div class="proj-top"><div class="proj-icon">🎯</div><span class="proj-num">02</span></div>
+        <div class="proj-name">GapGuide — AI Job Fit & Skill Gap Assistant</div>
+        <div class="proj-metric">Final Year Project</div>
+        <div class="proj-desc">Career guidance platform that shows students and career changers exactly which skills they lack for a target role: structured skill-gap analysis and role-based assessments generate personalized learning pathways with progress tracking.</div>
+        <div class="proj-stack"><span class="stack-tag">React</span><span class="stack-tag">Django REST</span><span class="stack-tag">pgvector</span><span class="stack-tag">PyTorch</span><span class="stack-tag">SBERT</span></div>
+      </div>
+      <div class="proj-card reveal">
+        <div class="proj-top"><div class="proj-icon">🤖</div><span class="proj-num">03</span></div>
+        <div class="proj-name">AI Assistant using NLP & RAG</div>
+        <div class="proj-desc">Conversational AI system using Retrieval-Augmented Generation to overcome LLM hallucination and stale knowledge, grounding every answer in external sources for reliable, context-aware responses.</div>
+        <div class="proj-stack"><span class="stack-tag">Python</span><span class="stack-tag">RAG</span><span class="stack-tag">LangChain</span><span class="stack-tag">Hugging Face</span></div>
+      </div>
+      <div class="proj-card reveal">
+        <div class="proj-top"><div class="proj-icon">📊</div><span class="proj-num">04</span></div>
+        <div class="proj-name">CRM Analytics & Interactive Dashboards</div>
+        <div class="proj-desc">Analyzed a large CRM dataset end-to-end: cleaned data in Python, answered 40 business questions through EDA, then built interactive dashboards in Power BI, Tableau and Excel using DAX measures, filters, slicers and pivot tables.</div>
+        <div class="proj-stack"><span class="stack-tag">Python</span><span class="stack-tag">Power BI</span><span class="stack-tag">Tableau</span><span class="stack-tag">DAX</span></div>
+      </div>
+      <div class="proj-card reveal">
+        <div class="proj-top"><div class="proj-icon">🌉</div><span class="proj-num">05</span></div>
         <div class="proj-name">Bridge Monitoring System</div>
-        <div class="proj-desc">Big Data pipeline using PySpark and Medallion Architecture (Bronze, Silver, Gold layers) for real-time structural health analysis.</div>
+        <div class="proj-desc">Big Data pipeline using PySpark and Medallion Architecture (Bronze, Silver, Gold layers) to process large-scale bridge sensor data for scalable structural health analysis.</div>
         <div class="proj-stack"><span class="stack-tag">PySpark</span><span class="stack-tag">Apache Spark</span><span class="stack-tag">Medallion</span></div>
       </div>
       <div class="proj-card reveal">
-        <div class="proj-top"><div class="proj-icon">📡</div><span class="proj-num">03</span></div>
+        <div class="proj-top"><div class="proj-icon">📡</div><span class="proj-num">06</span></div>
         <div class="proj-name">Apache Kafka Data Streaming</div>
         <div class="proj-desc">Real-time Kafka Producer–Consumer system with live data filtering, aggregation, and transformation pipelines at scale.</div>
         <div class="proj-stack"><span class="stack-tag">Kafka</span><span class="stack-tag">Python</span><span class="stack-tag">Streaming</span></div>
       </div>
       <div class="proj-card reveal">
-        <div class="proj-top"><div class="proj-icon">📈</div><span class="proj-num">04</span></div>
-        <div class="proj-name">Interactive Dashboards</div>
-        <div class="proj-desc">Business intelligence dashboards using DAX, calculated fields, filters, slicers, and pivot charts to convert raw data into insights.</div>
-        <div class="proj-stack"><span class="stack-tag">Power BI</span><span class="stack-tag">Tableau</span><span class="stack-tag">Excel</span></div>
-      </div>
-      <div class="proj-card reveal">
-        <div class="proj-top"><div class="proj-icon">🌐</div><span class="proj-num">05</span></div>
+        <div class="proj-top"><div class="proj-icon">🌐</div><span class="proj-num">07</span></div>
         <div class="proj-name">Interactive CV Web App</div>
         <div class="proj-desc">Web-based interactive resume built with Python and Streamlit — showcasing education, skills, and projects in a live deployed app.</div>
         <div class="proj-stack"><span class="stack-tag">Python</span><span class="stack-tag">Streamlit</span></div>
       </div>
       <div class="proj-card reveal">
-        <div class="proj-top"><div class="proj-icon">🕷️</div><span class="proj-num">06</span></div>
+        <div class="proj-top"><div class="proj-icon">🕷️</div><span class="proj-num">08</span></div>
         <div class="proj-name">UCP Faculty Scraping Tool</div>
         <div class="proj-desc">Scraped UCP faculty data extracting names, emails, designations, and research interests into structured CSV datasets.</div>
         <div class="proj-stack"><span class="stack-tag">BeautifulSoup</span><span class="stack-tag">Scrapy</span><span class="stack-tag">CSV</span></div>
       </div>
       <div class="proj-card reveal">
-        <div class="proj-top"><div class="proj-icon">🔍</div><span class="proj-num">07</span></div>
+        <div class="proj-top"><div class="proj-icon">🔍</div><span class="proj-num">09</span></div>
         <div class="proj-name">Exploratory Data Analysis</div>
         <div class="proj-desc">Deep data cleaning, statistical analysis, and visualization on real-world datasets using the core Python data science stack.</div>
         <div class="proj-stack"><span class="stack-tag">Pandas</span><span class="stack-tag">NumPy</span><span class="stack-tag">Matplotlib</span><span class="stack-tag">Seaborn</span></div>
       </div>
       <div class="proj-card reveal">
-        <div class="proj-top"><div class="proj-icon">🔄</div><span class="proj-num">08</span></div>
+        <div class="proj-top"><div class="proj-icon">🔄</div><span class="proj-num">10</span></div>
         <div class="proj-name">KNIME & Pentaho ETL Pipeline</div>
         <div class="proj-desc">End-to-end ETL pipeline designed to integrate, clean, and transform educational datasets for downstream analysis and reporting.</div>
         <div class="proj-stack"><span class="stack-tag">KNIME</span><span class="stack-tag">Pentaho</span><span class="stack-tag">ETL</span></div>
@@ -383,7 +412,7 @@ footer { position:relative; z-index:2; border-top:1px solid var(--border); paddi
     <div class="research-card reveal">
       <div class="research-label">// Academic Research</div>
       <div class="research-title">Distributed Single Scan on Spark (DSSS)</div>
-      <div class="research-desc">Reproduced the DSSS distributed algorithm using PySpark. Conducted systematic experimentation and validated results on real-world benchmark datasets — HIGGS and OTTO. Focused on performance analysis, scalability benchmarking, and distributed data processing efficiency at scale.</div>
+      <div class="research-desc">Reproduced the DSSS algorithm in PySpark to scale single-scan frequent-pattern mining beyond single-machine limits, and validated results through systematic experimentation on real-world benchmark datasets — HIGGS and OTTO.</div>
       <div class="research-tags">
         <span class="research-tag">PySpark</span>
         <span class="research-tag">Distributed Computing</span>
@@ -408,17 +437,17 @@ footer { position:relative; z-index:2; border-top:1px solid var(--border); paddi
         <div class="contact-title">Let's Connect</div>
         <div class="contact-desc">I'm always open to discussing data science opportunities, interesting projects, or collaborations. Feel free to reach out!</div>
         <div class="contact-links">
-          <a class="contact-link" href="mailto:assad69ali@gmail.com">
+          <a class="contact-link" href="mailto:asad.data.ali@gmail.com">
             <div class="contact-link-icon">✉</div>
-            <div><div class="contact-link-label">Email</div><div class="contact-link-value">assad69ali@gmail.com</div></div>
+            <div><div class="contact-link-label">Email</div><div class="contact-link-value">asad.data.ali@gmail.com</div></div>
           </a>
           <a class="contact-link" href="https://www.linkedin.com/in/assad69ali" target="_blank">
             <div class="contact-link-icon">in</div>
             <div><div class="contact-link-label">LinkedIn</div><div class="contact-link-value">linkedin.com/in/assad69ali</div></div>
           </a>
-          <a class="contact-link" href="tel:03090589566">
+          <a class="contact-link" href="tel:+923090589566">
             <div class="contact-link-icon">📞</div>
-            <div><div class="contact-link-label">Phone</div><div class="contact-link-value">0309 058 9566</div></div>
+            <div><div class="contact-link-label">Phone</div><div class="contact-link-value">+92 309 058 9566</div></div>
           </a>
           <a class="contact-link" href="#">
             <div class="contact-link-icon">📍</div>
@@ -431,7 +460,7 @@ footer { position:relative; z-index:2; border-top:1px solid var(--border); paddi
         <div class="edu-item">
           <div class="edu-degree">BS in Data Science</div>
           <div class="edu-school">University of Central Punjab · Lahore</div>
-          <div class="edu-year">2022 – Expected 2026 · 7th Semester</div>
+          <div class="edu-year">2022 – 2026</div>
         </div>
         <div class="edu-item">
           <div class="edu-degree">Intermediate in Computer Science (ICS)</div>
@@ -457,6 +486,7 @@ footer { position:relative; z-index:2; border-top:1px solid var(--border); paddi
   <div class="footer-right">Open to opportunities · Lahore, PK</div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // CUSTOM CURSOR
 const cursor = document.getElementById('cursor');
@@ -476,7 +506,7 @@ document.querySelectorAll('a,button,.proj-card,.skill-group').forEach(el => {
   el.addEventListener('mouseleave',()=>{ cursor.style.width='12px'; cursor.style.height='12px'; ring.style.width='36px'; ring.style.height='36px'; });
 });
 
-// PARTICLE NETWORK CANVAS
+// PARTICLE NETWORK CANVAS (ambient background, all sections)
 const canvas=document.getElementById('bgCanvas');
 const ctx=canvas.getContext('2d');
 let W,H,particles=[];
@@ -520,14 +550,36 @@ const cObs=new IntersectionObserver(entries=>{
 const hcard=document.querySelector('.hero-card');
 if(hcard) cObs.observe(hcard);
 
-// CARD MOUSE GLOW
+// CARD MOUSE GLOW + 3D TILT ON PROJECT/SKILL CARDS
 document.querySelectorAll('.skill-group,.proj-card').forEach(card=>{
   card.addEventListener('mousemove',e=>{
     const r=card.getBoundingClientRect();
-    card.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
-    card.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+    const px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
+    card.style.setProperty('--mx',(px*100)+'%');
+    card.style.setProperty('--my',(py*100)+'%');
+    if(card.classList.contains('proj-card')){
+      const rotX=(py-0.5)*-10, rotY=(px-0.5)*10;
+      card.style.transform=`perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-6px) translateZ(10px)`;
+    }
+  });
+  card.addEventListener('mouseleave',()=>{
+    if(card.classList.contains('proj-card')) card.style.transform='perspective(800px) rotateX(0) rotateY(0) translateY(0) translateZ(0)';
   });
 });
+
+// 3D TILT ON HERO CARD
+const heroCardEl=document.querySelector('.hero-card');
+if(heroCardEl){
+  heroCardEl.addEventListener('mousemove',e=>{
+    const r=heroCardEl.getBoundingClientRect();
+    const px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
+    const rotX=(py-0.5)*-8, rotY=(px-0.5)*8;
+    heroCardEl.style.transform=`perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+  });
+  heroCardEl.addEventListener('mouseleave',()=>{
+    heroCardEl.style.transform='perspective(900px) rotateX(0) rotateY(0)';
+  });
+}
 
 // ACTIVE NAV
 const secs=document.querySelectorAll('section[id]');
@@ -537,6 +589,191 @@ window.addEventListener('scroll',()=>{
   secs.forEach(s=>{ if(window.scrollY>=s.offsetTop-200) cur=s.id; });
   navAs.forEach(a=>{ a.style.color=a.getAttribute('href')==='#'+cur?'var(--cyan)':''; });
 });
+
+// ================= THREE.JS 3D HERO SCENE =================
+// A rotating wireframe icosahedron core surrounded by an orbiting data-node
+// swarm, connected by thin lines — reads as a small "network / data" motif
+// that echoes the 2D particle network used elsewhere on the page.
+(function initHero3D(){
+  const heroSection = document.getElementById('hero');
+  const canvasEl = document.getElementById('heroCanvas3d');
+  if(!heroSection || !canvasEl || typeof THREE === 'undefined') return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  let w = heroSection.clientWidth, h = heroSection.clientHeight;
+  const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(w, h);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+  camera.position.set(0, 0, 22);
+
+  // Core wireframe icosahedron
+  const coreGeo = new THREE.IcosahedronGeometry(4.4, 1);
+  const coreMat = new THREE.MeshBasicMaterial({ color: 0x00eeff, wireframe: true, transparent: true, opacity: 0.55 });
+  const core = new THREE.Mesh(coreGeo, coreMat);
+  scene.add(core);
+
+  // Inner glow sphere (subtle)
+  const glowGeo = new THREE.IcosahedronGeometry(4.1, 1);
+  const glowMat = new THREE.MeshBasicMaterial({ color: 0x00e5a0, wireframe: true, transparent: true, opacity: 0.12 });
+  const glow = new THREE.Mesh(glowGeo, glowMat);
+  scene.add(glow);
+
+  // Orbiting node swarm
+  const NODE_COUNT = 60;
+  const nodePositions = [];
+  const nodesGroup = new THREE.Group();
+  const nodeGeo = new THREE.SphereGeometry(0.055, 6, 6);
+  for (let i = 0; i < NODE_COUNT; i++) {
+    const radius = 6.5 + Math.random() * 5.5;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos((Math.random() * 2) - 1);
+    const x = radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.sin(phi) * Math.sin(theta);
+    const z = radius * Math.cos(phi);
+    const isGold = Math.random() < 0.25;
+    const mat = new THREE.MeshBasicMaterial({ color: isGold ? 0xf0c060 : 0x00eeff, transparent: true, opacity: 0.85 });
+    const node = new THREE.Mesh(nodeGeo, mat);
+    node.position.set(x, y, z);
+    node.userData = { speed: 0.15 + Math.random() * 0.25, axis: new THREE.Vector3(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize() };
+    nodesGroup.add(node);
+    nodePositions.push(node);
+  }
+  scene.add(nodesGroup);
+
+  // Thin connecting lines between nearby nodes (rebuilt periodically, cheap approx via LineSegments buffer)
+  const maxLines = 90;
+  const lineGeo = new THREE.BufferGeometry();
+  const linePositions = new Float32Array(maxLines * 2 * 3);
+  lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+  const lineMat = new THREE.LineBasicMaterial({ color: 0x00eeff, transparent: true, opacity: 0.12 });
+  const lines = new THREE.LineSegments(lineGeo, lineMat);
+  scene.add(lines);
+
+  function rebuildLines(){
+    let idx = 0;
+    for (let i = 0; i < nodePositions.length && idx < maxLines; i++) {
+      for (let j = i + 1; j < nodePositions.length && idx < maxLines; j++) {
+        const a = nodePositions[i].position, b = nodePositions[j].position;
+        const d = a.distanceTo(b);
+        if (d < 3.2) {
+          linePositions[idx*6]=a.x; linePositions[idx*6+1]=a.y; linePositions[idx*6+2]=a.z;
+          linePositions[idx*6+3]=b.x; linePositions[idx*6+4]=b.y; linePositions[idx*6+5]=b.z;
+          idx++;
+        }
+      }
+    }
+    for (let k = idx; k < maxLines; k++) {
+      linePositions[k*6]=0; linePositions[k*6+1]=0; linePositions[k*6+2]=0;
+      linePositions[k*6+3]=0; linePositions[k*6+4]=0; linePositions[k*6+5]=0;
+    }
+    lineGeo.attributes.position.needsUpdate = true;
+  }
+
+  let frame = 0;
+  let targetRotX = 0, targetRotY = 0, curRotX = 0, curRotY = 0;
+  heroSection.addEventListener('mousemove', (e) => {
+    const r = heroSection.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    targetRotY = px * 0.6;
+    targetRotX = py * 0.4;
+  });
+
+  function animate(){
+    frame++;
+    core.rotation.y += 0.0018;
+    core.rotation.x += 0.0009;
+    glow.rotation.y -= 0.0012;
+    glow.rotation.x += 0.0006;
+
+    nodesGroup.children.forEach(n => {
+      n.position.applyAxisAngle(n.userData.axis, n.userData.speed * 0.0016);
+    });
+    if (frame % 4 === 0) rebuildLines();
+
+    curRotX += (targetRotX - curRotX) * 0.04;
+    curRotY += (targetRotY - curRotY) * 0.04;
+    scene.rotation.x = curRotX;
+    scene.rotation.y = curRotY;
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    w = heroSection.clientWidth; h = heroSection.clientHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  });
+})();
+
+// ================= THREE.JS 3D PROJECTS BACKGROUND =================
+// A field of slow-drifting wireframe polyhedra (icosahedra, octahedra, torus)
+// tumbling behind the project cards — reinforces the "systems/models" theme
+// without competing with the card content in front of it.
+(function initProjects3D(){
+  const section = document.getElementById('projects');
+  const canvasEl = document.getElementById('projectsCanvas3d');
+  if(!section || !canvasEl || typeof THREE === 'undefined') return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  let w = section.clientWidth, h = section.clientHeight;
+  const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(w, h);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 1000);
+  camera.position.set(0, 0, 26);
+
+  const shapes = [];
+  const geoPool = [
+    new THREE.IcosahedronGeometry(1.6, 0),
+    new THREE.OctahedronGeometry(1.7, 0),
+    new THREE.TorusGeometry(1.1, 0.35, 8, 16),
+    new THREE.TetrahedronGeometry(1.8, 0)
+  ];
+  const colorPool = [0x00eeff, 0x00e5a0, 0xf0c060];
+
+  const SHAPE_COUNT = 14;
+  for (let i = 0; i < SHAPE_COUNT; i++) {
+    const geo = geoPool[i % geoPool.length];
+    const mat = new THREE.MeshBasicMaterial({ color: colorPool[i % colorPool.length], wireframe: true, transparent: true, opacity: 0.28 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set((Math.random()-0.5)*32, (Math.random()-0.5)*20, (Math.random()-0.5)*14 - 4);
+    mesh.userData = {
+      rotSpeedX: (Math.random()-0.5)*0.006,
+      rotSpeedY: (Math.random()-0.5)*0.006,
+      driftY: (Math.random()-0.5)*0.006,
+      baseY: mesh.position.y
+    };
+    scene.add(mesh);
+    shapes.push(mesh);
+  }
+
+  function animate(){
+    shapes.forEach(m => {
+      m.rotation.x += m.userData.rotSpeedX;
+      m.rotation.y += m.userData.rotSpeedY;
+      m.position.y = m.userData.baseY + Math.sin(Date.now()*0.0002 + m.userData.baseY) * 1.2;
+    });
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    w = section.clientWidth; h = section.clientHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  });
+})();
 </script>
 </body>
 </html>
